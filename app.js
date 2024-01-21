@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   userId: { type: Number, required: true },
   username: { type: String, required: true },
   password: { type: String, required: true },
-  mobile: { type: Number, required: true },
+  mobile: { type: String, required: true },
   ip: { type: String }
 });
 
@@ -44,6 +44,7 @@ app.post('/signup', async (req, res) => {
 
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const totalUsers = await User.countDocuments();
     const userId = totalUsers + 1;
     const newUser = new User({
