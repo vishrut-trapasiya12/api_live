@@ -115,5 +115,38 @@ app.get('/user', async (req, res) => {
   }
 });
 
+var nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'silkindia002@gmail.com',
+    pass: 'gfygipxhzpcxecuq'
+  }
+});
+
+app.use(express.json());
+
+app.post('/send-email', (req, res) => {
+  const { from, to, subject, text } = req.body;
+
+  const mailOptions = {
+    from: from,
+    to: to,
+    subject: subject,
+    text: text
+  };
+
+  transporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+      console.log(error);
+      res.status(500).json({ success: false, message: 'Failed to send email' });
+    } else {
+      console.log('Email sent: ' + info.response);
+      res.json({ success: true, message: 'Email sent successfully' });
+    }
+  });
+});
+
 app.listen(3000);
 
