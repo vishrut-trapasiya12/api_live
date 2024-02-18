@@ -115,38 +115,83 @@ app.get('/user', async (req, res) => {
   }
 });
 
-var nodemailer = require('nodemailer');
+const GameSchema = new mongoose.Schema({
+  imageurl: { type: String, required: true },
+  gameurl: { type: String, required: true },
+  gamename: { type: String, required: true },
+  orientation: { type: Boolean, required: true },
+  category: { type: String, required: true }
+})
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'silkindia002@gmail.com',
-    pass: 'gfygipxhzpcxecuq'
+const Game = mongoose.model('data', GameSchema);
+
+app.post('/addgame', async (req, res) => {
+  try {
+    const { imageurl, gameurl, gamename, orientation, category } = req.body;
+
+    // Check if all required fields are provided
+    if (!imageurl || !gameurl || !gamename || orientation === undefined || !category) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Check if game already exists
+    const existingGame = await Game.findOne({ gamename });
+    if (existingGame) {
+      return res.status(400).json({ error: 'Game already exists' });
+    }
+
+    // Create new games
+    const newGame = new Game({
+      imageurl,
+      gameurl,
+      gamename,
+      orientation,
+      category
+    });
+
+    // Save new game to database
+    await newGame.save();
+
+    res.status(201).json({ message: 'Game added successfully', game: newGame });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-app.use(express.json());
+app.get('/games', async (req, res) => {
+  try {
+    const allGame = await Game.find();
 
-app.post('/send-email', (req, res) => {
-  const { from, to, subject, text } = req.body;
-
-  const mailOptions = {
-    from: from,
-    to: to,
-    subject: subject,
-    text: text
-  };
-
-  transporter.sendMail(mailOptions, function(error, info) {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ success: false, message: 'Failed to send email' });
-    } else {
-      console.log('Email sent: ' + info.response);
-      res.json({ success: true, message: 'Email sent successfully' });
+    if (!allGame || allGame.length === 0) {
+      return res.status(404).json({ error: 'No users found' });
     }
-  });
+
+    res.status(200).json({ Games: allGame });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+app.get('/games/category/:category', async (req, res) => {
+  try {
+    let category = req.params.category.toLowerCase(); // Convert category to lowercase
+
+    // Find games by the provided category (case-insensitive)
+    const gamesByCategory = await Game.find({ category: { $regex: new RegExp(category, 'i') } });
+
+    if (!gamesByCategory || gamesByCategory.length === 0) {
+      return res.status(404).json({ error: 'No games found for the specified category' });
+    }
+
+    res.status(200).json({ games: gamesByCategory });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 app.listen(3000);
 
