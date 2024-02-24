@@ -4,11 +4,13 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cors()); 
 
 const Db = 'mongodb+srv://vishrut2140:vishrutpatel@cluster0.zl4h6gl.mongodb.net/patel123?retryWrites=true&w=majority';
 
