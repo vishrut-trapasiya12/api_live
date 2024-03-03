@@ -193,7 +193,6 @@ app.get('/games/category/:category', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-const file2 = require('./game.js');
 
 
 app.listen(3000);
