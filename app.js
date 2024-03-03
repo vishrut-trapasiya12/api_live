@@ -10,7 +10,7 @@ const app = express();
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors()); 
+app.use(cors());
 
 const Db = 'mongodb+srv://vishrut2140:vishrutpatel@cluster0.zl4h6gl.mongodb.net/patel123?retryWrites=true&w=majority';
 
@@ -169,7 +169,7 @@ app.get('/games', async (req, res) => {
       return res.status(404).json({ error: 'No users found' });
     }
 
-    res.status(200).json({ Games: allGame });
+    res.status(200).json({ data: allGame });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -193,6 +193,7 @@ app.get('/games/category/:category', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+const file2 = require('./game.js');
 
 
 app.listen(3000);
