@@ -187,7 +187,11 @@ app.get('/games/category/:category', async (req, res) => {
       return res.status(404).json({ error: 'No games found for the specified category' });
     }
 
-    res.status(200).json({ games: gamesByCategory });
+    const allAssets = await assets
+      .find({ company }, { _id: 0, __v: 0 })
+      .sort([['createdAt', -1]])
+      .exec();
+    res.status(200).json({ games: gamesByCategory, allAssets });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
